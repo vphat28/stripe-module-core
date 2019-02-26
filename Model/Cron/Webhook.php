@@ -405,8 +405,6 @@ class Webhook
             } else {
                 $message = 'Authorized amount of %1.';
                 $message = __($message, $amount);
-                $order->setState(Order::STATE_PENDING_PAYMENT);
-                $order->setStatus(Order::STATE_PENDING_PAYMENT);
                 $payment->addTransactionCommentsToOrder($charge->id, $message);
             }
             
