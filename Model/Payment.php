@@ -109,7 +109,7 @@ class Payment implements PaymentInterface
             }
         }
 
-        if ($customerId !== null) {
+        if ($customerId !== null && $saveSource === true) {
             $source = $this->getSource($token);
 
             if ($source->usage == 'reusable') {
@@ -129,11 +129,7 @@ class Payment implements PaymentInterface
                     }
                 }
 
-                try {
-                    $customer->sources->create(["source" => $token]);
-                } catch (\Exception $exception) {
-
-                }
+                $customer->sources->create(["source" => $token]);
             }
         }
 
