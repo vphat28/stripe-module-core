@@ -137,6 +137,8 @@ class Payment implements PaymentInterface
             $this->logger->info('Make charge request', $request);
         }
 
+        $request['description'] = time();
+
         return StripeCharge::create($request, [
             "idempotency_key" => md5(json_encode($request)),
         ]);
