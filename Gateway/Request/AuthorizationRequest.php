@@ -52,7 +52,7 @@ class AuthorizationRequest implements BuilderInterface
         $order = $paymentDO->getOrder();
         $payment = $paymentDO->getPayment();
         $paymentAdditionalInformation = $payment->getAdditionalInformation();
-        $address = $order->getShippingAddress();
+        $address = $order->getBillingAddress();
 
         if (!$payment instanceof OrderPaymentInterface) {
             throw new \LogicException('Order payment should be provided.');
