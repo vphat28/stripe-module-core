@@ -5,6 +5,7 @@ namespace Stripeofficial\Core\Model\Cron;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\Event\ManagerInterface;
 use Stripeofficial\Core\Api\PaymentInterface;
+use Stripeofficial\Core\Model\DataProvider;
 use Stripeofficial\Core\Model\Logger;
 use Stripeofficial\Core\Model\ResourceModel\WebhookQueueItem\Collection as WebhookCollection;
 use Stripeofficial\Core\Model\Source;
@@ -121,28 +122,11 @@ class Webhook
      * @var CustomerRepositoryInterface
      */
     protected $customerRepository;
-    
-    /**
-     * Webhook constructor.
-     * @param Session $checkoutSession
-     * @param Logger $logger
-     * @param Data $data
-     * @param ChargeResource $chargeResource
-     * @param ChargeFactory $chargeFactory
-     * @param OrderRepositoryInterface $orderRepository
-     * @param InvoiceManagementInterface $invoiceManagement
-     * @param CreditmemoRepositoryInterface $creditmemoRepository
-     * @param CreditmemoManagementInterface $creditmemoManagementInterface
-     * @param WebhookQueueItemFactory $webhookQueueItemFactory
-     * @param WebhookResource $webhookResource
-     * @param WebhookCollection $webhookCollection
-     * @param SourceRS $sourceRs
-     * @param SourceFactory $sourceFactory
-     * @param PaymentInterface $creditCardPayment
-     * @param ManagerInterface $eventManager
-     * @param CustomerRepositoryInterface $customerRepository
-     */
-    public function __construct(Session $checkoutSession, Logger $logger, Data $data, ChargeResource $chargeResource, ChargeFactory $chargeFactory, OrderRepositoryInterface $orderRepository, InvoiceManagementInterface $invoiceManagement, CreditmemoRepositoryInterface $creditmemoRepository, CreditmemoManagementInterface $creditmemoManagementInterface, WebhookQueueItemFactory $webhookQueueItemFactory, WebhookResource $webhookResource, WebhookCollection $webhookCollection, SourceRS $sourceRs, SourceFactory $sourceFactory, PaymentInterface $creditCardPayment, ManagerInterface $eventManager, CustomerRepositoryInterface $customerRepository)
+
+    /** @var DataProvider */
+    private $dataProvider;
+
+    public function __construct(Session $checkoutSession, Logger $logger, Data $data, ChargeResource $chargeResource, ChargeFactory $chargeFactory, OrderRepositoryInterface $orderRepository, InvoiceManagementInterface $invoiceManagement, CreditmemoRepositoryInterface $creditmemoRepository, CreditmemoManagementInterface $creditmemoManagementInterface, WebhookQueueItemFactory $webhookQueueItemFactory, WebhookResource $webhookResource, WebhookCollection $webhookCollection, SourceRS $sourceRs, SourceFactory $sourceFactory, PaymentInterface $creditCardPayment, ManagerInterface $eventManager, CustomerRepositoryInterface $customerRepository, DataProvider $dataProvider)
     {
         $this->checkoutSession               = $checkoutSession;
         $this->logger                        = $logger;
@@ -161,6 +145,7 @@ class Webhook
         $this->creditCardPayment             = $creditCardPayment;
         $this->eventManager                  = $eventManager;
         $this->customerRepository            = $customerRepository;
+        $this->dataProvider            = $dataProvider;
     }
     
     
@@ -397,7 +382,8 @@ class Webhook
                 $customer->setCustomAttribute('stripe_customer_id', $customerStripe);
                 $this->customerRepository->save($customer);
             }
-            
+
+            $this->dataProvider->setCurrentStoreId($order->getStoreId());
             $charge = $this->creditCardPayment->charge($capture, $sourceObject['id'], $amount * 100, $order->getOrderCurrencyCode(), $customerStripe, @$sourceObject['type']);
             
             if ($action == self::ACTION_AUTHORIZE_CAPTURE) {

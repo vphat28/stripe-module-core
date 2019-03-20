@@ -5,6 +5,7 @@ namespace Stripeofficial\Core\Helper;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
+use Stripeofficial\Core\Model\DataProvider;
 use Stripeofficial\Core\Model\Logger;
 
 class Data
@@ -29,17 +30,23 @@ class Data
      */
     protected $isDebug = null;
 
+    /** @var DataProvider */
+    private $dataProvider;
+
     /**
      * Data constructor.
      * @param ScopeConfigInterface $scopeConfig
      * @param EncryptorInterface $encryptor
      * @param Logger $logger
+     * @param DataProvider $dataProvider
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         EncryptorInterface $encryptor,
-        Logger $logger
+        Logger $logger,
+        DataProvider $dataProvider
     ) {
+        $this->dataProvider = $dataProvider;
         $this->scopeConfig = $scopeConfig;
         $this->encryptor = $encryptor;
         $this->logger = $logger;
@@ -82,10 +89,12 @@ class Data
      */
     public function getAPISecretKey()
     {
+        $storeId = $this->dataProvider->getCurrentStoreId();
+
         if ($this->getTestMode()) {
-            return $this->encryptor->decrypt((string)$this->scopeConfig->getValue('payment/stripecore/test_api_secret_key', \Magento\Store\Model\ScopeInterface::SCOPE_STORE));
+            return $this->encryptor->decrypt((string)$this->scopeConfig->getValue('payment/stripecore/test_api_secret_key', \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $storeId));
         } else {
-            return $this->encryptor->decrypt((string)$this->scopeConfig->getValue('payment/stripecore/api_secret_key', \Magento\Store\Model\ScopeInterface::SCOPE_STORE));
+            return $this->encryptor->decrypt((string)$this->scopeConfig->getValue('payment/stripecore/api_secret_key', \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $storeId));
         }
     }
 
