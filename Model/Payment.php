@@ -107,6 +107,8 @@ class Payment implements PaymentInterface
             if (!empty($statement)) {
                 $request['statement_descriptor'] = $statement;
             }
+        } else {
+            $request['capture'] = true;
         }
 
         if ($customerId !== null && $saveSource === true) {

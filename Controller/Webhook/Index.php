@@ -106,6 +106,7 @@ class Index extends Action
                 $this->webhookResource->save($webhook);
 
                 $this->logger->debug("Webhook failed, id is " .  $webhook->getId());
+                $this->logger->debug($e->getMessage());
             }
         }
 

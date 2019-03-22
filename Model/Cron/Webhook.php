@@ -385,7 +385,7 @@ class Webhook
 
             $this->dataProvider->setCurrentStoreId($order->getStoreId());
             $charge = $this->creditCardPayment->charge($capture, $sourceObject['id'], $amount * 100, $order->getOrderCurrencyCode(), $customerStripe, @$sourceObject['type']);
-            
+
             if ($action == self::ACTION_AUTHORIZE_CAPTURE) {
                 $this->createInvoice($payment, $charge->id, $order);
             } else {
@@ -401,13 +401,8 @@ class Webhook
                 'order_id' => $order->getId(),
             ], $order);
             $payment->setLastTransId($charge->id);
-            
-            try {
-                $payment->setAdditionalInformation('base_charge_id', $charge->id);
-                $this->orderRepository->save($order);
-            } catch (LocalizedException $e) {
-                $this->logger->info($e->getMessage());
-            }
+            $payment->setAdditionalInformation('base_charge_id', $charge->id);
+            $this->orderRepository->save($order);
 
             $this->eventManager->dispatch('stripe_charge_completed', ['order' => $order, 'charge_id' => (string)$charge->id]);
             $this->sourceRs->delete($source);
@@ -459,7 +454,6 @@ class Webhook
         if (@$event['object']['object'] == 'charge' && @$event['object']['captured'] == true) {
             $this->chargeResource->load($charge, $event['object']['id'], 'charge_id');
             $chargeId = $event['object']['id'];
-            
             /** @var Order $order */
             $order = $this->orderRepository->get($charge->getData('reference_order_id'));
             
