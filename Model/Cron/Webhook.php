@@ -318,6 +318,7 @@ class Webhook
      */
     public function handleSourceChargeable($event)
     {
+        $this->dataProvider->setStripeContext('webhook');
         /** @var Source $source */
         $source   = $this->sourceFactory->create();
         $sourceId = $event['object']['id'];
@@ -417,8 +418,12 @@ class Webhook
      * @param Order $order
      * @throws LocalizedException
      */
-    private function createInvoice($payment, $chargeId, $order)
+    public function createInvoice($payment, $chargeId, $order)
     {
+        if ($order->getTotalInvoiced() >= $order->getGrandTotal()) {
+            return;
+        }
+
         $amount  = $payment->getBaseAmountAuthorized();
         /** @var Order\Invoice $invoice */
         $invoice = $this->invoiceManagement->prepareInvoice($order);

@@ -6,6 +6,8 @@ class DataProvider
 {
     private $currentStoreId = null;
 
+    private $stripeContext = '';
+
     public function getCurrentStoreId()
     {
         return $this->currentStoreId;
@@ -14,5 +16,15 @@ class DataProvider
     public function setCurrentStoreId($currentStoreId)
     {
         $this->currentStoreId = $currentStoreId;
+    }
+
+    public function setStripeContext($name)
+    {
+        $this->stripeContext = $name;
+    }
+
+    public function getStripeContext()
+    {
+        return $this->stripeContext;
     }
 }
